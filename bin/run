@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Run this from project root
+
+set -eux
+
+# builds <root>/repro.jar
+clojure -X:uberjar
+
+tdir=$(mktemp -d)
+
+mkdir -p "$tdir/lib"
+
+mv repro.jar "$tdir/lib/"
+
+docker run \
+  --rm \
+  --platform linux/amd64 \
+  -v "$tdir":/var/task:ro,delegated \
+  lambci/lambda:java11 \
+  repro
